@@ -14,7 +14,7 @@
 <script>
 $(document).ready(new function() {
   $('#timezone').text('Your timezone: ' + moment.tz.guess() + ' (GMT' + moment().format('Z') + ')');
-  $('#container').append('<div>URL params: ' + JSON.stringify($.url.param()) + '</div>');
+  $('#container').append('<div>URL params: ' + JSON.stringify($.url().param()) + '</div>');
 });
 </script>
 </body>
