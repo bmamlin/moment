@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>moment</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.0/moment-timezone-with-data.min.js"></script>
+  <style>
+  body { font-family: arial; }
+  #timezone { color: #DDD; text-align: center; font-size: 10pt; }
+  #container { margin-top: 2em; text-align: center; font-size: 20pt; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div id="timezone"></div>
+  <div id="container"></div>
+<script>
+$(document).ready(new function() {
+  $('#timezone').text('Your timezone: ' + moment.tz.guess() + ' (GMT' + moment().format('Z') + ')');
+  var time = $.url().param('time');
+  var html;
+  try {
+    if (!time) throw('Time parameter missing or blank');
+    html = moment(time).format('h:mm a on DDDD, Do MMMM YYYY');
+  } catch(err) {
+    var example = $.url().attr('protocol') + '://' + $.url().attr('host')
+      + $.url().attr('path') + '?time=2015-12-28T11:11:11-05:00';
+    html = '<p>Send <a href="http://momentjs.com" target="_blank">moment</a>-parsable '
+      + '(e.g., <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO-8601</a>) '
+      + 'time in URL</p><p><a href="' + example + '" target="_blank">' + example + '</a></p>';
+  }
+  $('#container').html(html);
+});
+</script>
+</body>
+</html>
