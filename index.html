@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>moment</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.0/moment-timezone-with-data.min.js" />
+  <link rel="stylesheet" type="text/css" href="main.css" />
+</head>
+<body>
+  <div id="timezone"></div>
+  <div id="container"></div>
+<script>
+$(document).ready() {
+  $('#timezone').text('Your timezone: ' + moment.tz.guess() + ' (GMT' + moment().format('Z') + ')');
+  $('#container').append('<div>URL params: ' + JSON.stringify($.url.param()) + '</div>');
+}
+</script>
+</body>
+</html>
