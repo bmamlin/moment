@@ -7,13 +7,36 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.0/moment-timezone-with-data.min.js"></script>
   <style>
-  body { font-family: arial;}
-  div { margin-top: 20px; }
-  .timezone { color: #DDD; text-align: center; font-size: 15pt; }
-  .container { text-align: center; }
-  .time { font-size: 60pt; font-weight: bold; }
-  .date { font-size: 40pt; }
-  .url { text-align: center; }
+  body {
+    font-family: arial;
+  }
+  div {
+    margin-top: 20px;
+  }
+  .timezone {
+    color: #DDD;
+    text-align: center;
+    font-size: 15pt;
+  }
+  .container {
+    text-align: center;
+  }
+  .time {
+    font-size: 60pt;
+    font-weight: bold;
+  }
+  .date {
+    font-size: 40pt;
+  }
+  .url {
+    color: gray;
+    text-align: center;
+    font-size: 10pt;
+  }
+  .url a {
+    color: gray;
+    font-style: italic;
+  }
   </style>
 </head>
 <body>
@@ -57,6 +80,9 @@ $(document).ready(new function() {
   );
   var epoch = $.url().attr('fragment');
   var time = $.url().param('time');
+  if (time) {
+    time = time.trim().replace(/ /g, '+');
+  }
   var m = epoch != null && epoch ?
       moment.unix(decode62(epoch))
       : moment(decodeURIComponent(time));
