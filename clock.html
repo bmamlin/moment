@@ -7,54 +7,76 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.0/moment-timezone-with-data.min.js"></script>
   <style>
-  body { font-family: arial; }
-  #timezone { margin-top: 2em; color: #DDD; text-align: center; font-size: 10pt; }
-  #container { margin-top: 2em; text-align: center; font-size: 20pt; font-weight: bold; }
-  #form { margin-top: 2em; text-align: center; }
-  #url { margin-top: 2em; }
+  body { font-family: arial;}
+  div { margin-top: 20px; }
+  .timezone { color: #DDD; text-align: center; font-size: 15pt; }
+  .container { text-align: center; }
+  .time { font-size: 60pt; font-weight: bold; }
+  .date { font-size: 40pt; }
+  .url { text-align: center; }
   </style>
 </head>
 <body>
-  <div id="timezone"></div>
-  <div id="container"></div>
-  <div id="form">
-    <p>
-      Enter time to make your own link:
-    </p>
-    <input type="text" id="time" />
-    <div id="url"></div>
+  <div class="timezone"></div>
+  <div class="container">
+    <div class="time"></div>
+    <div class="date"></div>
   </div>
+  <div class="url"></div>
 <script>
-function buildUrl(time) {
-  return $.url().attr('protocol') + '://' + $.url().attr('host')
-      + $.url().attr('path') + '?time=' + encodeURIComponent(time);
-}
-function updateUrl() {
-  var time = $('#time').val();
-  var m = moment(time);
-  if (m.isValid()) {
-    var url = buildUrl(time);
-    $('#url').html('<a href="' + url + '" target="_blank">'
-      + url + '</a>' );
-  } else {
-    $('#url').html('Invalid date');
+var base62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+function encode62(n) {
+  var s = "", q = Math.floor(n,62);
+  while (true) {
+    var r = q % 62;
+    var s = base62.charAt(r) + s;
+    q = (q-r)/62;
+    if (q === 0) break;
   }
+  return s;
+}
+function decode62(s) {
+ var x = 0;
+ for (var i=0; i<s.length; i++) {
+    var r = base62.indexOf(s.charAt(s.length-i-1));
+    x = Math.pow(62,i)*r + x;
+ }
+ return x;
+}
+function baseUrl() {
+  return $.url().attr('protocol') + '://'
+    + $.url().attr('host') + $.url().attr('path');
+}
+function buildUrl(time) {
+  return baseUrl() + '?time=' + encodeURIComponent(time);
 }
 $(document).ready(new function() {
-  $('#timezone').text('Your timezone: ' + moment.tz.guess() + ' (GMT' + moment().format('Z') + ')');
-  var time = decodeURIComponent($.url().param('time'));
-  var html;
-  var m = moment(time);
-  if (!time || !m.isValid()) {
-    var example = buildUrl('2015-12-28T11:11:11-05:00');
-    html = '<p>Send <a href="http://momentjs.com" target="_blank">moment</a>-parsable '
+  $('.timezone').text(
+    'Your timezone: ' + moment.tz.guess() 
+    + ' (GMT' + moment().format('Z') + ')'
+  );
+  var epoch = $.url().attr('fragment');
+  var time = $.url().param('time');
+  var m = epoch != null && epoch ?
+      moment.unix(decode62(epoch))
+      : moment(decodeURIComponent(time));
+  if ((!epoch && !time) || !m.isValid()) {
+    var example = buildUrl('20151228T1234-0500');
+    var html = '<p>Send <a href="http://momentjs.com" target="_blank">moment</a>-parsable '
       + '(e.g., <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO-8601</a>) '
       + 'time in URL</p><p><a href="' + example + '">' + example + '</a></p>';
+    $('.container').html(html);
   } else {
-    html = m.format('h:mm a on dddd, Do MMMM YYYY');
+    $('.time').text(m.format('h:mm a'));
+    $('.date').text(m.format('dddd, D MMMM YYYY'));
+    var url = buildUrl(m.format('YYYYMMDDThhmmZZ'));
+    var tiny = baseUrl() + '#' + encode62(m.unix());
+    $('.url').html(
+      '<p><a href="' + url + '">' + url + '</a></p>' +
+      '<p>or</p>' +
+      '<p><a href="' + tiny + '">' + tiny + '</a></p>'
+    );
   }
-  $('#container').html(html);
-  $('#time').keyup(updateUrl).focus();
 });
 </script>
 </body>
