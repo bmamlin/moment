@@ -40,7 +40,10 @@
   </style>
 </head>
 <body>
-  <div class="timezone"></div>
+  <div class="timezone">
+    <select id="timezone">
+    </select>
+  </div>
   <div class="container">
     <div class="time"></div>
     <div class="date"></div>
@@ -73,11 +76,24 @@ function baseUrl() {
 function buildUrl(time) {
   return baseUrl() + '?time=' + encodeURIComponent(time);
 }
-$(document).ready(new function() {
-  $('.timezone').text(
-    'Your timezone: ' + moment.tz.guess() 
-    + ' (GMT' + moment().format('Z') + ')'
+function displayTime(m, tz) {
+  $('.time').text(m.tz(tz).format('h:mm a'));
+  $('.date').text(m.tz(tz).format('dddd, D MMMM YYYY'));
+  var url = buildUrl(m.tz(tz).format('YYYYMMDDThhmmZZ'));
+  var tiny = baseUrl() + '#' + encode62(m.unix());
+  $('.url').html(
+    '<p><a href="' + url + '">' + url + '</a></p>' +
+    '<p>or</p>' +
+    '<p><a href="' + tiny + '">' + tiny + '</a></p>'
   );
+}
+$(document).ready(new function() {
+  var mytz = moment.tz.guess();
+  $.each(moment.tz.names(), function(index, name) {
+    $('#timezone').append('<option value="' + name + '"'
+      + (name === mytz ? ' selected' : '') + '>'
+      + name.replace(/_/g, ' ') + '</option>');
+  });
   var epoch = $.url().attr('fragment');
   var time = $.url().param('time');
   if (time) {
@@ -93,15 +109,10 @@ $(document).ready(new function() {
       + 'time in URL</p><p><a href="' + example + '">' + example + '</a></p>';
     $('.container').html(html);
   } else {
-    $('.time').text(m.format('h:mm a'));
-    $('.date').text(m.format('dddd, D MMMM YYYY'));
-    var url = buildUrl(m.format('YYYYMMDDThhmmZZ'));
-    var tiny = baseUrl() + '#' + encode62(m.unix());
-    $('.url').html(
-      '<p><a href="' + url + '">' + url + '</a></p>' +
-      '<p>or</p>' +
-      '<p><a href="' + tiny + '">' + tiny + '</a></p>'
-    );
+    displayTime(m, mytz);
+    $('#timezone').change(function() {
+      displayTime(m, $(this).val());
+    });
   }
 });
 </script>
